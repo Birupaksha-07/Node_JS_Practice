@@ -1,39 +1,36 @@
 const dotenv = require('dotenv');
 const express = require('express');
-const mysql = require('mysql');
+const con = require("./config");
+
+
 dotenv.config();
-
 const port = process.env.PORT || 7000;
-
 const app = express();
 
-const con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'project1',
+app.use(express.json());
+
+
+
+
+app.get('/show-users', (req , res)=>{
+    con.query("select * from users", (err, result)=>{
+        if(err){
+            res.send(err)
+        }else{
+            res.send(result)
+        }
+    })
 });
 
-con.connect((err)=>{
-    if(err) {
-        console.log("connection failed",err)
-    }else{  
-        console.log("DB Connected Successfully");
-    }
-})
+app.post('/add-users', (req , res)=>{
+    const data = req.body 
+    console.log("data---", data)
 
-con.query("select * from customers", (err, result)=>{
-    if(err){
-        console.log("tale error ---", err)
-    }else{
-        console.log("result is", result);
-    }
-})
+    con.query("INSERT INTO users SET ?", data , (err , result , fields )=>{
+        if(err){console.log("error in api", err)}
+        else{res.send(result)}
 
-
-
-app.get('/', (req , res)=>{
-    res.send("wellcome to Home Page");
+    })
 });
 
 app.listen(port, ()=>{
